@@ -18,57 +18,67 @@ class NeonScaffold extends StatelessWidget {
   final Widget? trailing;
   final bool showBack;
 
+  void _goBack(BuildContext context) {
+    AppScope.of(context).playTap();
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    } else {
+      Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF090916), NeonColors.background],
+    return PopScope(
+      canPop: Navigator.of(context).canPop(),
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) {
+          return;
+        }
+        Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+      },
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF090916), NeonColors.background],
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 4, 16, 8),
-                child: Row(
-                  children: [
-                    if (showBack)
-                      IconButton(
-                        tooltip: 'Back',
-                        onPressed: () {
-                          AppScope.of(context).playTap();
-                          if (Navigator.of(context).canPop()) {
-                            Navigator.of(context).pop();
-                          } else {
-                            Navigator.of(context)
-                                .pushReplacementNamed(AppRoutes.home);
-                          }
-                        },
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                        color: NeonColors.cyan,
-                      )
-                    else
-                      const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          color: NeonColors.text,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
+          child: SafeArea(
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 4, 16, 8),
+                  child: Row(
+                    children: [
+                      if (showBack)
+                        IconButton(
+                          tooltip: 'Back',
+                          onPressed: () => _goBack(context),
+                          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                          color: NeonColors.cyan,
+                        )
+                      else
+                        const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: const TextStyle(
+                            color: NeonColors.text,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ),
-                    ),
-                    ?trailing,
-                  ],
+                      ?trailing,
+                    ],
+                  ),
                 ),
-              ),
-              Expanded(child: child),
-            ],
+                Expanded(child: child),
+              ],
+            ),
           ),
         ),
       ),

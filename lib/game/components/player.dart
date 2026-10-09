@@ -78,11 +78,11 @@ class PlayerComponent extends PositionComponent
     super.update(dt);
     _anim?.update(dt);
     _pulse += dt * 10;
-    final t = (GameConfig.playerLerpSpeed * dt).clamp(0.0, 1.0);
+    final t = 1 - math.exp(-GameConfig.playerLerpSpeed * dt);
     position.x = lerpDoubleClamped(position.x, targetX, t);
     position.x = game.layout.clampPlayerX(position.x, size.x);
     final desiredBank = ((targetX - position.x) / 70).clamp(-0.38, 0.38);
-    _bank = lerpDoubleClamped(_bank, desiredBank, (10 * dt).clamp(0.0, 1.0));
+    _bank = lerpDoubleClamped(_bank, desiredBank, 1 - math.exp(-10 * dt));
     position.y = game.playerY + math.sin(_pulse * 0.35) * 3;
   }
 

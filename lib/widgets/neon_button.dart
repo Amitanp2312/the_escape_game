@@ -81,9 +81,9 @@ class _NeonButtonState extends State<NeonButton> {
       child: GestureDetector(
         onTapDown: enabled ? (_) => setState(() => _pressed = true) : null,
         onTapCancel: () => setState(() => _pressed = false),
-        onTapUp: enabled
-            ? (_) {
-                setState(() => _pressed = false);
+        onTapUp: enabled ? (_) => setState(() => _pressed = false) : null,
+        onTap: enabled
+            ? () {
                 AppScope.of(context).playTap();
                 widget.onPressed?.call();
               }

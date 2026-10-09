@@ -89,6 +89,7 @@ class NeonEscapeGame extends FlameGame with HasCollisionDetection {
   double _levelElapsed = 0;
   double _bossBannerTimer = 0;
   double _comboPulseTimer = 0;
+  double _hudAcc = 0;
   SessionResult? _pendingResult;
   bool _resultCommitted = false;
   final math.Random _random = math.Random();
@@ -147,28 +148,29 @@ class NeonEscapeGame extends FlameGame with HasCollisionDetection {
 
   @override
   void update(double dt) {
-    super.update(dt);
+    final step = dt.clamp(0.0, 1 / 30);
+    super.update(step);
     if (paused || isGameOver) {
       return;
     }
     if (isVictory) {
-      _updateShake(dt);
+      _updateShake(step);
       return;
     }
-    stats.survivalSeconds += dt;
-    _levelElapsed += dt;
-    stats.distanceMeters += currentObstacleSpeed * dt * 0.085;
-    invincibleTimer = math.max(0, invincibleTimer - dt);
-    _bossBannerTimer = math.max(0, _bossBannerTimer - dt);
-    _comboPulseTimer = math.max(0, _comboPulseTimer - dt);
-    powerUps.update(dt);
-    weapons.update(dt);
+    stats.survivalSeconds += step;
+    _levelElapsed += step;
+    stats.distanceMeters += currentObstacleSpeed * step * 0.085;
+    invincibleTimer = math.max(0, invincibleTimer - step);
+    _bossBannerTimer = math.max(0, _bossBannerTimer - step);
+    _comboPulseTimer = math.max(0, _comboPulseTimer - step);
+    powerUps.update(step);
+    weapons.update(step);
     final progress = (_levelElapsed / level.runSeconds).clamp(0.0, 1.0);
     difficulty = difficultyManager.evaluate(level: level, progress: progress);
-    scoreManager.addSurvival(dt, activeScoreMultiplier);
+    scoreManager.addSurvival(step, activeScoreMultiplier);
     stats.score = scoreManager.score;
     if (!inBossFight) {
-      _spawnTimer -= dt * worldSpeedFactor;
+      _spawnTimer -= step * worldSpeedFactor;
       if (_spawnTimer <= 0) {
         _spawnRow();
         _spawnTimer = difficulty.spawnInterval;
@@ -177,8 +179,12 @@ class NeonEscapeGame extends FlameGame with HasCollisionDetection {
         _startBoss();
       }
     }
-    _updateShake(dt);
-    refreshHud();
+    _updateShake(step);
+    _hudAcc += step;
+    if (_hudAcc >= 0.08) {
+      _hudAcc = 0;
+      refreshHud();
+    }
   }
 
   void onDragTo(double worldX) {
